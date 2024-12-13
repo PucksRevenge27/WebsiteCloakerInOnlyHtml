@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloaked Website Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.0/dist/full.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/firebase@8.6.8/firebase-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@8.6.8/firebase-analytics.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@8.6.8/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, rgba(255, 228, 0, 0.8), rgba(255, 0, 228, 0.8));
+            overflow: hidden;
+        }
+        .form-container {
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .form-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="flex items-center justify-center h-screen">
+        <div class="form-container max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-center mb-6">Cloaked Website Viewer</h2>
+            <input type="text" id="websiteInput" class="input input-bordered w-full mb-4" placeholder="Enter website URL" />
+            <button id="viewButton" class="btn btn-primary w-full">View Website</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const formContainer = document.querySelector('.form-container');
+            formContainer.classList.add('visible');
+            const button = document.getElementById('viewButton');
+            const input = document.getElementById('websiteInput');
+            button.addEventListener('click', function() {
+                let url = input.value;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                const newWindow = window.open('about:blank', '_blank');
+                newWindow.document.write('<html><head><title>about:blank</title></head><body style="margin: 0; padding: 0;">');
+                newWindow.document.write('<iframe id="cloakedIframe" src="' + url + '" style="width: 100%; height: 100vh; border: none;"></iframe>');
+                newWindow.document.write('<script>const iframe = document.getElementById("cloakedIframe"); iframe.onload = function() { const links = iframe.contentDocument.getElementsByTagName("a"); for(let link of links) { link.setAttribute("target", "_blank"); link.addEventListener("click", function(e) { e.preventDefault(); const newUrl = this.href; const cloakedWindow = window.open("about:blank", "_blank"); cloakedWindow.document.write("<html><head><title>Cloaked View</title></head><body style=\'margin: 0; padding: 0;\'>"); cloakedWindow.document.write("<iframe src=\'"+newUrl+"\' style=\'width: 100%; height: 100vh; border: none;\'></iframe>"); cloakedWindow.document.write("</body></html>"); cloakedWindow.document.close(); }); } };<\/script>');
+                newWindow.document.write('</body></html>');
+                newWindow.document.close();
+            });
+        });
+    </script>
+</body>
+</html>
